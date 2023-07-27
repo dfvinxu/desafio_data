@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify  # Importamos jsonify para manejar el 
 import os
 import pickle
 import zipfile
+import requests
+from api_key import *
 
 os.chdir(os.path.dirname(__file__))
 
@@ -10,7 +12,7 @@ app.config['DEBUG'] = True
 
 @app.route("/", methods=['GET'])
 def hello():
-    return "Bienvenido a la API de predicción de temperaturas"
+    return "Bienvenido a la API de temperaturas"
 
 @app.route('/v1/predict', methods=['GET'])
 def predict():
@@ -33,6 +35,27 @@ def predict():
         prediccion = model.predict([[ano, mes, dia, hora]])
         temperatura_prediccion = round(prediccion[0], 2)
         return jsonify({"Prediccion_temperatura_Madrid": temperatura_prediccion})
+
+@app.route('/v1/temp_actual', methods=['GET'])
+def temp():
+    city = "Madrid"
+    url = f"https://api.openweathermap.org/data/2.5/weather?q=Madrid,es&appid={api_key}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        weather_data = response.json()
+        temperature_kelvin = weather_data["main"]["temp"]
+        temperature_celsius = temperature_kelvin - 273.15  # Convertir a Celsius
+        temperature_data = {
+            "city": city,
+            "temperature_celsius": round(temperature_celsius,2)
+        }
+        return jsonify(temperature_data)  # Devolver la información en formato JSON
+    else:
+        error_data = {
+            "error": "Error al obtener los datos meteorológicos."
+        }
+        return jsonify(error_data)  # Devolver mensaje de error en formato JSON
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=False)

@@ -1,12 +1,12 @@
 {
         "AWSEBDockerrunVersion":"1",
         "Image": {
-            "Name": "svalencia1986/api_temp",
+            "Name": "svalencia1986/api_temp:0.5",
             "Update": "true"
     },
     "Ports" :[
             {
-                "ContainerPort":"5000"
+                "ContainerPort":"3000"
             }
         ]
     }
