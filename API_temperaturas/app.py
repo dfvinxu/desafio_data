@@ -1,8 +1,7 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify  # Importamos jsonify para manejar el JSON
 import os
 import pickle
 import zipfile
-
 
 os.chdir(os.path.dirname(__file__))
 
@@ -29,9 +28,11 @@ def predict():
     hora = request.args.get('hora', None)
 
     if ano is None or mes is None or dia is None or hora is None:
-        return "Faltan argumentos en la llamada"
+        return jsonify({"error": "Faltan argumentos en la llamada"})
     else:
         prediccion = model.predict([[ano, mes, dia, hora]])
-        return "Predicción de temperatura en Madrid:" + str(round(prediccion[0],2)) + 'ºC'
+        temperatura_prediccion = round(prediccion[0], 2)
+        return jsonify({"Prediccion_temperatura_Madrid": temperatura_prediccion})
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=False)
