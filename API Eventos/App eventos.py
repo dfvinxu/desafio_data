@@ -4,8 +4,6 @@ from datetime import datetime, timedelta
 from flask import Flask, jsonify
 import io
 
-# La librería io es para poder trabajar con el csv de la API del ayuntamiento de Madrid sin tener que descargarlo.
-
 def obtener_agenda_activades_eventos_100dias():
     url = "https://datos.madrid.es/egob/catalogo/300107-0-agenda-actividades-eventos.csv"
     
@@ -56,7 +54,14 @@ def obtener_eventos():
         direccion_column = df.pop("DIRECCION")
         df.insert(6, "DIRECCION", direccion_column)
 
-        return jsonify(df.to_dict(orient='records'))
+        # Convertir las columnas de fecha a objetos datetime
+        df["FECHA"] = pd.to_datetime(df["FECHA"])
+        df["FECHA-FIN"] = pd.to_datetime(df["FECHA-FIN"])
+
+        # Realizar las comparaciones
+        df_filtrado = df[((df["FECHA"] <= fecha_actual) & (df["FECHA-FIN"] >= fecha_actual)) | (df["FECHA"] <= fecha_maxima)]
+
+        return jsonify(df_filtrado.to_dict(orient='records'))
 
     return jsonify({"error": "No se pudo obtener la agenda de eventos."}), 500
 
