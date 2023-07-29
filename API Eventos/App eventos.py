@@ -43,6 +43,8 @@ def obtener_eventos():
         df["NOMBRE-VIA-INSTALACION"].fillna("No disponible", inplace=True)
         df["BARRIO-INSTALACION"].fillna("No disponible", inplace=True)
         df["NUM-INSTALACION"].fillna("N/A o N/D", inplace=True)
+        df['NUM-INSTALACION'] = pd.to_numeric(df['NUM-INSTALACION'], errors='coerce')
+        df['NUM-INSTALACION'] = df['NUM-INSTALACION'].astype(pd.Int64Dtype(), errors='ignore')
         df["TIPO"] = df["TIPO"].str.extract(r'\/([^/]+)$')
         df["TIPO"] = df["TIPO"].fillna("No disponible")
         df["NUM-INSTALACION"] = df["NUM-INSTALACION"].astype(str)
