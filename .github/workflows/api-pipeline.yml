@@ -1,0 +1,56 @@
+name: Deploy App Runner Services # Name of the workflow
+
+on:
+  push:
+    branches: [main] # Trigger workflow on git push to main branch
+  workflow_dispatch: # Allow manual invocation of the workflow
+
+jobs:
+  deploy-api-temp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-api-temp-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: desafio_api_temp
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./API_temperaturas
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Deploy api tempertauras to App Runner
+        id: deploy-apprunner-api-temp
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: app-runner-desafio-api-temp
+          image: ${{ steps.build-api-temp-image.outputs.image }}
+          access-role-arn: ${{ secrets.ROLE_ARN }}
+          runtime: NODEJS_16
+          region: ${{ secrets.AWS_REGION }}
+          cpu: 1
+          memory: 2
+          port: 5000
+
+      - name: Client App Runner output
+        run: echo "App runner output ${{ steps.deploy-apprunner-client.outputs.service-id }}"
