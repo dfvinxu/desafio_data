@@ -1,20 +1,14 @@
-<<<<<<< HEAD
 # Importamos jsonify para manejar el JSON
 from flask import Flask, request, jsonify
-=======
-from flask import Flask, request, jsonify  # Importamos jsonify para manejar el JSON
 from datetime import datetime, timedelta
 from flask_cors import CORS
->>>>>>> 6b684510871307bdc24989af9621c5a293f1a1fe
 import os
 import zipfile
 import requests
-<<<<<<< HEAD
-=======
-from api_key import *
 import pickle
 import io
 import pandas as pd
+
 
 def obtener_agenda_activades_eventos_100dias():
     url = "https://datos.madrid.es/egob/catalogo/300107-0-agenda-actividades-eventos.csv"
@@ -28,7 +22,7 @@ def obtener_agenda_activades_eventos_100dias():
     except requests.exceptions.RequestException as e:
         print("Error al obtener los eventos culturales:", e)
         return None
->>>>>>> 6b684510871307bdc24989af9621c5a293f1a1fe
+
 
 os.chdir(os.path.dirname(__file__))
 
@@ -87,8 +81,7 @@ def temp():
         }
         return jsonify(error_data)  # Devolver mensaje de error en formato JSON
 
-<<<<<<< HEAD
-=======
+
 @app.route('/v1/eventos', methods=['GET'])
 def obtener_eventos():
     fecha_actual = datetime.now()
@@ -98,11 +91,12 @@ def obtener_eventos():
     contenido_csv = obtener_agenda_activades_eventos_100dias()
 
     if contenido_csv:
-        df = pd.read_csv(io.BytesIO(contenido_csv), sep=";", encoding="latin-1")
+        df = pd.read_csv(io.BytesIO(contenido_csv),
+                         sep=";", encoding="latin-1")
         df.dropna(subset=["LONGITUD"], inplace=True)
         df = df.drop(["PRECIO", "Unnamed: 29", "AUDIENCIA", "LARGA-DURACION", "DESCRIPCION", "TITULO-ACTIVIDAD", "URL-ACTIVIDAD",
                       "CODIGO-POSTAL-INSTALACION", "URL-INSTALACION", "ACCESIBILIDAD-INSTALACION", "DIAS-EXCLUIDOS", "GRATUITO",
-                      "COORDENADA-X", "COORDENADA-Y"," ID-EVENTO"],
+                      "COORDENADA-X", "COORDENADA-Y", " ID-EVENTO"],
                      axis=1)
         df["DIAS-SEMANA"].fillna("No disponible", inplace=True)
         df["HORA"].fillna("No disponible", inplace=True)
@@ -113,14 +107,17 @@ def obtener_eventos():
         df["NOMBRE-VIA-INSTALACION"].fillna("No disponible", inplace=True)
         df["BARRIO-INSTALACION"].fillna("No disponible", inplace=True)
         df["NUM-INSTALACION"].fillna("N/A o N/D", inplace=True)
-        df['NUM-INSTALACION'] = pd.to_numeric(df['NUM-INSTALACION'], errors='coerce')
-        df['NUM-INSTALACION'] = df['NUM-INSTALACION'].astype(pd.Int64Dtype(), errors='ignore')
+        df['NUM-INSTALACION'] = pd.to_numeric(
+            df['NUM-INSTALACION'], errors='coerce')
+        df['NUM-INSTALACION'] = df['NUM-INSTALACION'].astype(
+            pd.Int64Dtype(), errors='ignore')
         df["TIPO"] = df["TIPO"].str.extract(r'\/([^/]+)$')
         df["TIPO"] = df["TIPO"].fillna("No disponible")
         df["NUM-INSTALACION"] = df["NUM-INSTALACION"].astype(str)
-        df["DIRECCION"] = df["CLASE-VIAL-INSTALACION"] + " " + df["NOMBRE-VIA-INSTALACION"] + " " + df["NUM-INSTALACION"]
-        df = df.drop(["CLASE-VIAL-INSTALACION","NOMBRE-VIA-INSTALACION","NUM-INSTALACION","NOMBRE-INSTALACION","DISTRITO-INSTALACION",
-                      "BARRIO-INSTALACION"],axis=1)
+        df["DIRECCION"] = df["CLASE-VIAL-INSTALACION"] + " " + \
+            df["NOMBRE-VIA-INSTALACION"] + " " + df["NUM-INSTALACION"]
+        df = df.drop(["CLASE-VIAL-INSTALACION", "NOMBRE-VIA-INSTALACION", "NUM-INSTALACION", "NOMBRE-INSTALACION", "DISTRITO-INSTALACION",
+                      "BARRIO-INSTALACION"], axis=1)
         tipo_column = df.pop("TIPO")
         df.insert(1, "TIPO", tipo_column)
         direccion_column = df.pop("DIRECCION")
@@ -131,14 +128,13 @@ def obtener_eventos():
         df["FECHA-FIN"] = pd.to_datetime(df["FECHA-FIN"])
 
         # Realizar las comparaciones
-        df_filtrado = df[((df["FECHA"] <= fecha_actual) & (df["FECHA-FIN"] >= fecha_actual)) | (df["FECHA"] <= fecha_maxima)]
+        df_filtrado = df[((df["FECHA"] <= fecha_actual) & (
+            df["FECHA-FIN"] >= fecha_actual)) | (df["FECHA"] <= fecha_maxima)]
 
         return jsonify(df_filtrado.to_dict(orient='records'))
 
     return jsonify({"error": "No se pudo obtener la agenda de eventos."}), 500
 
-
->>>>>>> 6b684510871307bdc24989af9621c5a293f1a1fe
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=False)
