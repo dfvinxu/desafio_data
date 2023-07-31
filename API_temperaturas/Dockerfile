@@ -10,7 +10,7 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # Variables de entorno
-ENV API_KEY = 2a4888d5bb0e8e262434c0d42226a16e
+ENV API_KEY="2a4888d5bb0e8e262434c0d42226a16e"
 ENV PORT=5000
 
 # El puerto
