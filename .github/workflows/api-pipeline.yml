@@ -42,6 +42,8 @@ jobs:
       - name: Deploy api tempertauras to App Runner
         id: deploy-apprunner-api-temp
         uses: awslabs/amazon-app-runner-deploy@main
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
         with:
           service: app-runner-desafio-api-temp
           image: ${{ steps.build-api-temp-image.outputs.image }}
