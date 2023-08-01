@@ -135,6 +135,5 @@ def obtener_eventos():
 
     return jsonify({"error": "No se pudo obtener la agenda de eventos."}), 500
 
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=False)
