@@ -38,13 +38,13 @@ def after_request(response):
 
 
 @app.route("/", methods=['GET'])
-@cross_origin()
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def hello():
     return "Bienvenido a la API de temperaturas"
 
 
 @app.route('/v1/predict', methods=['GET'])
-@cross_origin()
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def predict():
 
     zip_file_path = "./model/model_temp.zip"
@@ -68,7 +68,7 @@ def predict():
 
 
 @app.route('/v1/temp_actual', methods=['GET'])
-@cross_origin()
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def temp():
     city = "Madrid"
     url = f"https://api.openweathermap.org/data/2.5/weather?q=Madrid,es&appid={os.environ.get('API_KEY')}"
@@ -92,7 +92,7 @@ def temp():
 
 
 @app.route('/v1/eventos', methods=['GET'])
-@cross_origin()
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def obtener_eventos():
     fecha_actual = datetime.now()
     # fecha_actual_str = fecha_actual.strftime("%Y-%m-%d")
