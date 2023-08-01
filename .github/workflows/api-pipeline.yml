@@ -53,6 +53,8 @@ jobs:
           cpu: 1
           memory: 2
           port: 5000
+          copy-env-vars: |
+            API_KEY
 
       - name: Client App Runner output
         run: echo "App runner output ${{ steps.deploy-apprunner-api-temp.outputs.service-id }}"
