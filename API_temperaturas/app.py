@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify  # Importamos jsonify para manejar el JSON
 from datetime import datetime, timedelta
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import os
 import zipfile
 import requests
@@ -35,10 +35,12 @@ def after_request(response):
     return response
 
 @app.route("/", methods=['GET'])
+@cross_origin()
 def hello():
     return "Bienvenido a la API de temperaturas"
 
 @app.route('/v1/predict', methods=['GET'])
+@cross_origin()
 def predict():
 
     zip_file_path = "./model/model_temp.zip"
@@ -61,6 +63,7 @@ def predict():
         return jsonify({"Prediccion_temperatura_Madrid": temperatura_prediccion})
 
 @app.route('/v1/temp_actual', methods=['GET'])
+@cross_origin()
 def temp():
     city = "Madrid"
     url = f"https://api.openweathermap.org/data/2.5/weather?q=Madrid,es&appid={api_key}"
@@ -82,6 +85,7 @@ def temp():
         return jsonify(error_data)  # Devolver mensaje de error en formato JSON
 
 @app.route('/v1/eventos', methods=['GET'])
+@cross_origin()
 def obtener_eventos():
     fecha_actual = datetime.now()
     # fecha_actual_str = fecha_actual.strftime("%Y-%m-%d")
